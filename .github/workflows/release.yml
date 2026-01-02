@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update manifest version
+        run: |
+          version="${GITHUB_REF#refs/tags/v}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$version\"/" custom_components/remidt_renovasjon/manifest.json
+
+      - name: Validate manifest.json
+        run: |
+          python -c "import json; print(json.load(open('custom_components/remidt_renovasjon/manifest.json')))"
+
+      - name: Create release archive
+        run: |
+          cd custom_components
+          zip -r ../remidt_renovasjon.zip remidt_renovasjon
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./remidt_renovasjon.zip
+          asset_name: remidt_renovasjon.zip
+          asset_content_type: application/zip
