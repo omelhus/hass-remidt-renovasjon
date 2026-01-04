@@ -258,17 +258,13 @@ class TestRenovasjonOptionsFlow:
     @pytest.mark.asyncio
     async def test_options_flow_saves_interval(self, options_flow: RenovasjonOptionsFlow):
         """Test that options flow saves the update interval."""
-        result = await options_flow.async_step_init(
-            user_input={CONF_UPDATE_INTERVAL: 24}
-        )
+        result = await options_flow.async_step_init(user_input={CONF_UPDATE_INTERVAL: 24})
 
         assert result["type"] == FlowResultType.CREATE_ENTRY
         assert result["data"][CONF_UPDATE_INTERVAL] == 24
 
     @pytest.mark.asyncio
-    async def test_options_flow_preserves_existing_interval(
-        self, mock_entry: MagicMock
-    ):
+    async def test_options_flow_preserves_existing_interval(self, mock_entry: MagicMock):
         """Test that options flow shows existing interval value."""
         mock_entry.options = {CONF_UPDATE_INTERVAL: 6}
         options_flow = RenovasjonOptionsFlow(mock_entry)

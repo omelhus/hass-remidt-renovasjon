@@ -150,7 +150,9 @@ class TestRenovasjonCollectionTodaySensor:
 
         assert sensor.is_on is False
 
-    def test_sensor_is_off_when_collection_tomorrow(self, mock_coordinator_without_today: MagicMock):
+    def test_sensor_is_off_when_collection_tomorrow(
+        self, mock_coordinator_without_today: MagicMock
+    ):
         """Test sensor is OFF when next collection is tomorrow."""
         sensor = RenovasjonCollectionTodaySensor(
             coordinator=mock_coordinator_without_today,
