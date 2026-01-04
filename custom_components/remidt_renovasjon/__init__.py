@@ -8,6 +8,7 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 
 from .const import DOMAIN
@@ -51,10 +52,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             if entry_id:
                 # Refresh specific entry
-                if entry_id in hass.data[DOMAIN]:
-                    coordinator = hass.data[DOMAIN][entry_id]
-                    await coordinator.async_refresh()
-                    _LOGGER.debug("Refreshed data for entry %s", entry_id)
+                if entry_id not in hass.data[DOMAIN]:
+                    raise ServiceValidationError(
+                        f"Unknown entry_id: {entry_id}",
+                        translation_domain=DOMAIN,
+                        translation_key="unknown_entry_id",
+                        translation_placeholders={"entry_id": entry_id},
+                    )
+                coordinator = hass.data[DOMAIN][entry_id]
+                await coordinator.async_refresh()
+                _LOGGER.debug("Refreshed data for entry %s", entry_id)
             else:
                 # Refresh all entries
                 for coord in hass.data[DOMAIN].values():

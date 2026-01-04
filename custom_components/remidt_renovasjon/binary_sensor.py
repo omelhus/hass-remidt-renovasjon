@@ -5,22 +5,14 @@ from __future__ import annotations
 import logging
 from datetime import date
 
-from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass,
-    BinarySensorEntity,
-)
+from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
-    CONF_ADDRESS_NAME,
-    CONF_MUNICIPALITY,
-    DOMAIN,
-    WASTE_FRACTIONS,
-)
+from .const import DOMAIN, WASTE_FRACTIONS
 from .coordinator import RenovasjonCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -56,7 +48,6 @@ class RenovasjonCollectionTodaySensor(CoordinatorEntity[RenovasjonCoordinator], 
     """Binary sensor that indicates if there is a collection today for a waste fraction."""
 
     _attr_has_entity_name = True
-    _attr_device_class = BinarySensorDeviceClass.OCCUPANCY
 
     def __init__(
         self,
@@ -71,11 +62,11 @@ class RenovasjonCollectionTodaySensor(CoordinatorEntity[RenovasjonCoordinator], 
         # Get fraction config if available
         fraction_config = WASTE_FRACTIONS.get(fraction, {})
         translation_key = fraction_config.get("translation_key", fraction.lower().replace(" ", "_"))
+        self._icon = fraction_config.get("icon", "mdi:calendar-check")
 
         # Entity attributes
         self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{fraction}_today"
         self._attr_translation_key = f"{translation_key}_today"
-        self._attr_icon = "mdi:calendar-check"
 
         # Fallback name
         self._attr_name = f"{fraction} today"
@@ -83,11 +74,18 @@ class RenovasjonCollectionTodaySensor(CoordinatorEntity[RenovasjonCoordinator], 
         # Device info - group all entities under one device per address
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
-            name=f"Renovasjon {coordinator.config_entry.data[CONF_ADDRESS_NAME]}",
+            name=f"Renovasjon {coordinator.data.address_name}",
             manufacturer="Renovasjonsportal",
-            model=coordinator.config_entry.data[CONF_MUNICIPALITY],
+            model=coordinator.data.municipality,
             entry_type=DeviceEntryType.SERVICE,
         )
+
+    @property
+    def icon(self) -> str:
+        """Return the icon based on state."""
+        if self.is_on:
+            return "mdi:calendar-check"
+        return self._icon
 
     @property
     def is_on(self) -> bool | None:
@@ -95,11 +93,10 @@ class RenovasjonCollectionTodaySensor(CoordinatorEntity[RenovasjonCoordinator], 
         if self.coordinator.data is None:
             return None
 
-        next_disposal = self.coordinator.data.get_next_disposal(self._fraction)
-        if next_disposal is None:
-            return False
-
-        return next_disposal.date.date() == date.today()
+        # Check if any disposal for this fraction is scheduled for today
+        disposals = self.coordinator.data.disposals_by_fraction.get(self._fraction, [])
+        today = date.today()
+        return any(d.date.date() == today for d in disposals)
 
     @property
     def extra_state_attributes(self) -> dict[str, str]:
