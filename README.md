@@ -5,6 +5,7 @@ A Home Assistant custom integration for Norwegian waste collection schedules via
 ## Features
 
 - Automatic sensor creation for each waste fraction at your address
+- **Calendar integration** - view collection dates in Home Assistant's calendar
 - Shows next collection date for each waste type
 - Supports multiple waste types: Restavfall, Matavfall, Papir, Plastemballasje, Glass og metallemballasje
 - Extra attributes include days until collection and upcoming dates
@@ -52,6 +53,14 @@ The integration creates one sensor per waste fraction found for your address. Ea
   - `address`: Your configured address
   - `municipality`: Your municipality
 
+## Calendar
+
+The integration also creates a calendar entity that displays all waste collection dates. Each collection appears as an all-day event with the waste fraction name as the event title.
+
+To view the calendar:
+1. Go to your Home Assistant calendar view
+2. The "Renovasjon" calendar will show all upcoming collection dates
+
 ## Development
 
 ### Setup
@@ -80,6 +89,7 @@ uv run ruff format .
 ```
 custom_components/remidt_renovasjon/
 ├── api.py           # API client for renovasjonsportal.no
+├── calendar.py      # Calendar entity for collection events
 ├── config_flow.py   # Setup wizard (address search and selection)
 ├── const.py         # Constants and configuration
 ├── coordinator.py   # Data update coordinator
