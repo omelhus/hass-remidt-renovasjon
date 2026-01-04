@@ -14,14 +14,14 @@ A Home Assistant custom integration for Norwegian waste collection schedules via
 
 ### HACS Installation (Recommended)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=omelhus&repository=hass-remidt-renovasjon&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=omelhus&repository=ha-remidt-renovasjon&category=integration)
 
 Or manually:
 
 1. Open HACS in your Home Assistant instance
 2. Click the three dots in the top right corner
 3. Select "Custom repositories"
-4. Add `https://github.com/omelhus/hass-remidt-renovasjon` and select "Integration" as the category
+4. Add `https://github.com/omelhus/ha-remidt-renovasjon` and select "Integration" as the category
 5. Click "Add"
 6. Search for "ReMidt Renovasjon" and install it
 7. Restart Home Assistant

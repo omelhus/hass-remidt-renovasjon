@@ -1,12 +1,12 @@
 {
   "domain": "remidt_renovasjon",
   "name": "ReMidt Renovasjon",
-  "codeowners": [],
+  "codeowners": ["@omelhus"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/omelhus/hass-remidt-renovasjon",
+  "documentation": "https://github.com/omelhus/ha-remidt-renovasjon",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/omelhus/hass-remidt-renovasjon/issues",
+  "issue_tracker": "https://github.com/omelhus/ha-remidt-renovasjon/issues",
   "requirements": [],
   "version": "1.0.0"
 }
