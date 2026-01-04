@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import date
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -11,6 +10,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, WASTE_FRACTIONS
 from .coordinator import RenovasjonCoordinator
@@ -95,7 +95,7 @@ class RenovasjonCollectionTodaySensor(CoordinatorEntity[RenovasjonCoordinator], 
 
         # Check if any disposal for this fraction is scheduled for today
         disposals = self.coordinator.data.disposals_by_fraction.get(self._fraction, [])
-        today = date.today()
+        today = dt_util.now().date()
         return any(d.date.date() == today for d in disposals)
 
     @property
