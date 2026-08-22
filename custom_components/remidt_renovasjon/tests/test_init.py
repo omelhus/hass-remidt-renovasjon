@@ -70,8 +70,9 @@ class TestAsyncSetupEntry:
         result = await async_setup(mock_hass, {})
 
         assert result is True
-        mock_hass.http.register_static_path.assert_called_once()
-        assert mock_hass.http.register_static_path.call_args.args[0] == (
+        mock_hass.http.async_register_static_paths.assert_awaited_once()
+        static_paths = mock_hass.http.async_register_static_paths.await_args.args[0]
+        assert static_paths[0].url_path == (
             "/remidt_renovasjon/remidt-renovasjon-card.js"
         )
 

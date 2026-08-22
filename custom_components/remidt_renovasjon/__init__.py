@@ -11,6 +11,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.http import StaticPathConfig
 
 from .const import DOMAIN
 from .coordinator import RenovasjonCoordinator
@@ -30,10 +31,14 @@ SERVICE_REFRESH_SCHEMA = vol.Schema(
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the integration and serve its Lovelace card."""
     card_path = Path(__file__).parent / "www" / "remidt-renovasjon-card.js"
-    hass.http.register_static_path(
-        f"/{DOMAIN}/remidt-renovasjon-card.js",
-        str(card_path),
-        cache_headers=True,
+    await hass.http.async_register_static_paths(
+        [
+            StaticPathConfig(
+                f"/{DOMAIN}/remidt-renovasjon-card.js",
+                str(card_path),
+                cache_headers=True,
+            )
+        ]
     )
     return True
 
