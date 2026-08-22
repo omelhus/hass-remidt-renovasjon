@@ -62,6 +62,20 @@ class TestAsyncSetupEntry:
             assert mock_entry in call_args[0]
             assert Platform.SENSOR in call_args[0][1]
 
+    @pytest.mark.asyncio
+    async def test_async_setup_registers_lovelace_card(self, mock_hass: MagicMock):
+        """Test that the bundled Lovelace card is served by the integration."""
+        from .. import async_setup
+
+        result = await async_setup(mock_hass, {})
+
+        assert result is True
+        mock_hass.http.async_register_static_paths.assert_awaited_once()
+        static_paths = mock_hass.http.async_register_static_paths.await_args.args[0]
+        assert static_paths[0].url_path == (
+            "/remidt_renovasjon/remidt-renovasjon-card.js"
+        )
+
 
 class TestAsyncUnloadEntry:
     """Tests for async_unload_entry."""

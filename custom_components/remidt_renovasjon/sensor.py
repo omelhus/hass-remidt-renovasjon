@@ -11,6 +11,7 @@ from homeassistant.components.sensor import (
     SensorEntity,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -43,12 +44,18 @@ async def async_setup_entry(
     await coordinator.async_config_entry_first_refresh()
 
     # Create sensors for each fraction found in the data
-    entities: list[RenovasjonSensor] = []
+    entities: list[SensorEntity] = []
 
     if coordinator.data:
         for fraction in coordinator.data.fractions:
             entities.append(
                 RenovasjonSensor(
+                    coordinator=coordinator,
+                    fraction=fraction,
+                )
+            )
+            entities.append(
+                RenovasjonDaysUntilSensor(
                     coordinator=coordinator,
                     fraction=fraction,
                 )
@@ -139,6 +146,67 @@ class RenovasjonSensor(CoordinatorEntity[RenovasjonCoordinator], SensorEntity):
             attrs[ATTR_UPCOMING_DATES] = [d.date.date().isoformat() for d in upcoming]
 
         return attrs
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self.async_write_ha_state()
+
+
+class RenovasjonDaysUntilSensor(CoordinatorEntity[RenovasjonCoordinator], SensorEntity):
+    """Sensor showing the number of days until collection."""
+
+    _attr_has_entity_name = True
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = UnitOfTime.DAYS
+    _attr_suggested_display_precision = 0
+
+    def __init__(
+        self,
+        coordinator: RenovasjonCoordinator,
+        fraction: str,
+    ) -> None:
+        """Initialize the days-until sensor."""
+        super().__init__(coordinator)
+
+        self._fraction = fraction
+        fraction_config = WASTE_FRACTIONS.get(fraction, {})
+        translation_key = fraction_config.get(
+            "translation_key", fraction.lower().replace(" ", "_")
+        )
+
+        self._attr_unique_id = f"{coordinator.config_entry.entry_id}_{fraction}_days_until"
+        self._attr_translation_key = f"{translation_key}_days_until"
+        self._attr_icon = fraction_config.get("icon", "mdi:trash-can-outline")
+        self._attr_name = f"{fraction} days until collection"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.config_entry.entry_id)},
+            name=f"Renovasjon {coordinator.data.address_name}",
+            manufacturer="Renovasjonsportal",
+            model=coordinator.data.municipality,
+            entry_type=DeviceEntryType.SERVICE,
+        )
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the number of days until the next collection."""
+        if self.coordinator.data is None:
+            return None
+
+        return self.coordinator.data.get_days_until(self._fraction)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return attributes useful for configuring a tile card."""
+        days_until = self.native_value
+        if days_until is None:
+            return {ATTR_FRACTION: self._fraction}
+
+        tile_color = "red" if days_until <= 1 else "yellow" if days_until <= 3 else ""
+        return {
+            ATTR_FRACTION: self._fraction,
+            "tile_color": tile_color,
+        }
 
     @callback
     def _handle_coordinator_update(self) -> None:

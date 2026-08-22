@@ -68,6 +68,21 @@
       },
       "glass_metall": {
         "name": "Glass og metall"
+      },
+      "restavfall_days_until": {
+        "name": "Dager til henting av restavfall"
+      },
+      "matavfall_days_until": {
+        "name": "Dager til henting av matavfall"
+      },
+      "papir_days_until": {
+        "name": "Dager til henting av papir"
+      },
+      "plastemballasje_days_until": {
+        "name": "Dager til henting av plastemballasje"
+      },
+      "glass_metall_days_until": {
+        "name": "Dager til henting av glass og metall"
       }
     },
     "binary_sensor": {

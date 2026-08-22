@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import voluptuous as vol
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -24,6 +26,21 @@ SERVICE_REFRESH_SCHEMA = vol.Schema(
         vol.Optional("entry_id"): cv.string,
     }
 )
+
+
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up the integration and serve its Lovelace card."""
+    card_path = Path(__file__).parent / "www" / "remidt-renovasjon-card.js"
+    await hass.http.async_register_static_paths(
+        [
+            StaticPathConfig(
+                f"/{DOMAIN}/remidt-renovasjon-card.js",
+                str(card_path),
+                cache_headers=True,
+            )
+        ]
+    )
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

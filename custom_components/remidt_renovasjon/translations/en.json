@@ -42,6 +42,21 @@
       },
       "glass_metall": {
         "name": "Glass and metal"
+      },
+      "restavfall_days_until": {
+        "name": "Residual waste days until collection"
+      },
+      "matavfall_days_until": {
+        "name": "Food waste days until collection"
+      },
+      "papir_days_until": {
+        "name": "Paper days until collection"
+      },
+      "plastemballasje_days_until": {
+        "name": "Plastic packaging days until collection"
+      },
+      "glass_metall_days_until": {
+        "name": "Glass and metal days until collection"
       }
     },
     "binary_sensor": {
