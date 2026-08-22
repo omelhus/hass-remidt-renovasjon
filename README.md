@@ -8,6 +8,7 @@ A Home Assistant custom integration for Norwegian waste collection schedules via
 - **Calendar integration** - view collection dates in Home Assistant's calendar
 - **Binary sensors** - "collection today" sensors for each waste type
 - Shows next collection date for each waste type
+- Shows days until collection in a separate sensor for each waste type
 - Supports multiple waste types: Restavfall, Matavfall, Papir, Plastemballasje, Glass og metallemballasje
 - Extra attributes include days until collection and upcoming dates
 - **Configurable update interval** via options
@@ -55,6 +56,58 @@ The integration creates one sensor per waste fraction found for your address. Ea
   - `upcoming_dates`: List of upcoming collection dates
   - `address`: Your configured address
   - `municipality`: Your municipality
+
+It also creates a separate days-until sensor for each waste fraction. These sensors
+have the number of days until collection as their state and a `tile_color` attribute:
+`yellow` for 2-3 days and `red` for 0-1 days. Use that attribute when configuring a
+dashboard tile card.
+
+## ReMidt Renovasjon Card
+
+The repository also includes a custom Lovelace card that applies the countdown
+colors automatically. The card is bundled with the integration, so it is installed
+when you install or update ReMidt Renovasjon through HACS.
+
+### Add the JavaScript resource
+
+After installing or updating the integration:
+
+1. Restart Home Assistant.
+2. Go to **Settings > Dashboards**.
+3. Open the three-dot menu in the top-right corner.
+4. Select **Resources**.
+5. Select **Add Resource**.
+6. Enter this URL:
+
+   ```text
+   /remidt_renovasjon/remidt-renovasjon-card.js
+   ```
+
+7. Set the resource type to **JavaScript Module**.
+8. Save the resource and refresh your browser. A hard refresh (`Ctrl+F5`) may be
+   required if the card was previously unavailable.
+
+### Add the card
+
+Edit the dashboard, choose **Add Card > Manual**, and add the days-until entities:
+
+```yaml
+type: custom:remidt-renovasjon-card
+title: Waste collection
+entities:
+  - sensor.renovasjon_restavfall_days_until
+  - sensor.renovasjon_matavfall_days_until
+  - sensor.renovasjon_papir_days_until
+  - sensor.renovasjon_plastemballasje_days_until
+  - sensor.renovasjon_glass_og_metallemballasje_days_until
+```
+
+The exact entity IDs may differ. Find the generated entities under **Developer
+Tools > States** by searching for `days_until`.
+
+The card uses a yellow background for 2-3 days, a red background for 0-1 days, and
+the normal card color when collection is more than three days away. Missing or
+unavailable entities are shown as unavailable.
 
 ## Calendar
 

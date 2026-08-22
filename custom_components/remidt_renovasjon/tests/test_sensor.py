@@ -21,7 +21,7 @@ from ..const import (
     DOMAIN,
 )
 from ..coordinator import RenovasjonCoordinator, RenovasjonData
-from ..sensor import RenovasjonSensor
+from ..sensor import RenovasjonDaysUntilSensor, RenovasjonSensor
 from .conftest import MOCK_CONFIG_ENTRY_DATA
 
 
@@ -190,6 +190,35 @@ class TestRenovasjonSensor:
         assert sensor._attr_icon == "mdi:food-apple"
         assert sensor.native_value is not None
 
+    def test_days_until_sensor(self, mock_coordinator: MagicMock):
+        """Test the days-until sensor state and tile color."""
+        sensor = RenovasjonDaysUntilSensor(mock_coordinator, "Restavfall")
+
+        assert sensor.native_value == 1
+        assert sensor._attr_device_class == SensorDeviceClass.DURATION
+        assert sensor.extra_state_attributes["tile_color"] == "red"
+
+    def test_days_until_sensor_yellow_threshold(self, mock_coordinator: MagicMock):
+        """Test yellow tile color for two and three days until collection."""
+        for days_until in (2, 3):
+            mock_coordinator.data.disposals_by_fraction["Restavfall"][0].date = (
+                datetime.now() + timedelta(days=days_until)
+            )
+            sensor = RenovasjonDaysUntilSensor(mock_coordinator, "Restavfall")
+
+            assert sensor.native_value == days_until
+            assert sensor.extra_state_attributes["tile_color"] == "yellow"
+
+    def test_days_until_sensor_no_collection(
+        self, mock_coordinator: MagicMock
+    ):
+        """Test the days-until sensor when no collection is scheduled."""
+        mock_coordinator.data.disposals_by_fraction["Restavfall"] = []
+        sensor = RenovasjonDaysUntilSensor(mock_coordinator, "Restavfall")
+
+        assert sensor.native_value is None
+        assert sensor.extra_state_attributes == {ATTR_FRACTION: "Restavfall"}
+
 
 class TestAsyncSetupEntry:
     """Tests for async_setup_entry."""
@@ -241,8 +270,8 @@ class TestAsyncSetupEntry:
 
         await async_setup_entry(mock_hass, mock_entry, capture_entities)
 
-        # Should create one sensor per fraction
-        assert len(entities_added) == 3
+        # Should create two sensors per fraction
+        assert len(entities_added) == 6
 
         fractions = {e._fraction for e in entities_added}
         assert "Restavfall" in fractions
