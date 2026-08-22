@@ -6,12 +6,12 @@ import logging
 from pathlib import Path
 
 import voluptuous as vol
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
-from homeassistant.http import StaticPathConfig
 
 from .const import DOMAIN
 from .coordinator import RenovasjonCoordinator
