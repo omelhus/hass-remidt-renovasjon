@@ -95,11 +95,11 @@ Edit the dashboard, choose **Add Card > Manual**, and add the days-until entitie
 type: custom:remidt-renovasjon-card
 title: Waste collection
 entities:
-  - sensor.renovasjon_restavfall_days_until
-  - sensor.renovasjon_matavfall_days_until
-  - sensor.renovasjon_papir_days_until
-  - sensor.renovasjon_plastemballasje_days_until
-  - sensor.renovasjon_glass_og_metallemballasje_days_until
+  - sensor.renovasjon_restavfall_days_until_collection
+  - sensor.renovasjon_matavfall_days_until_collection
+  - sensor.renovasjon_papir_days_until_collection
+  - sensor.renovasjon_plastemballasje_days_until_collection
+  - sensor.renovasjon_glass_og_metallemballasje_days_until_collection
 ```
 
 The exact entity IDs may differ. Find the generated entities under **Developer
